@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expenses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(145deg, #ffffff, #f1f1f1);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-container label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-container input, .form-container textarea, .form-container select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333;
+            transition: border 0.3s ease, background-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-container input:focus, .form-container textarea:focus, .form-container select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .form-container button {
+            padding: 12px;
+            background: #727477;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .form-container button:hover {
+            background: #252627;
+        }
+
+        /* Back Button and View Expenses Button */
+        .form-container .btn-secondary {
+            background: #727477;
+            color: white;
+            border: none;
+            padding: 12px;
+            text-align: center;
+            display: inline-block;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 10px;
+            margin-right: 10px;
+            width: auto;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container .btn-secondary:hover {
+            background: #252627;
+        }
+
+        /* Success Alert Style */
+        .alert-success {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation: slide-in 0.5s ease-out, slide-out 0.5s ease-in 2.5s forwards;
+        }
+
+        @keyframes slide-in {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slide-out {
+            from {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 15px;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .form-container h2 {
+                font-size: 22px;
+            }
+
+            .form-container input, .form-container textarea, .form-container select {
+                font-size: 14px;
+            }
+
+            .form-container button {
+                font-size: 16px;
+            }
+
+            .form-container .btn-secondary {
+                font-size: 14px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Success message display -->
+    {% if messages %}
+        <div class="alert-success" id="success-message">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="form-container">
+        <h2>Add Expenses</h2>
+        <form method="POST">
+            {% csrf_token %}
+            
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+                <option value="" disabled selected>Select a category</option>
+                <option value="Food">Food</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Others">Others</option>
+            </select>
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" required></textarea>
+
+            <label for="amount">Amount (INR)</label>
+            <input type="number" id="amount" name="amount" step="0.01" required>
+
+            <button type="submit">Submit</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'profile' %}" class="btn-secondary">Back to Profile</a>
+            <a href="{% url 'view_expenses' %}" class="btn-secondary">View Expenses</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const successMessage = document.getElementById('success-message');
+
+            if (successMessage) {
+                successMessage.addEventListener('animationend', (event) => {
+                    if (event.animationName === 'slide-out') {
+                        successMessage.remove();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

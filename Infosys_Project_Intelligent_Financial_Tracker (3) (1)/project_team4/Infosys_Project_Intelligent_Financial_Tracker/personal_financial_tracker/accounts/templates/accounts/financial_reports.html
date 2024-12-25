@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Reports</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .report-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .report-container h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .report-item {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        .report-item strong {
+            font-weight: bold;
+        }
+        .chart-container {
+            margin-top: 40px;
+            text-align: center;
+            background-color: #e6f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .buttons-container {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .button {
+            padding: 15px 30px;
+            font-size: 16px;
+            background-color: #727477;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2f2e2e;
+        }
+        .download-btn {
+            background-color: #727477; /* Match the Back to Profile button */
+        }
+        .download-btn:hover {
+            background-color: #2f2e2e; /* Match the hover effect */
+        }
+    </style>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Include latest html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Include SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="report-container">
+        <h1>Financial Report</h1>
+        <div class="report-item">
+            <strong>Total Expense:</strong> ₹{{ total_expense|floatformat:2 }}
+        </div>
+        <div class="report-item">
+            <strong>Average Daily Expense:</strong> ₹{{ average_daily_expense|floatformat:2 }}
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h2>Expense Categories</h2>
+        <canvas id="expenseChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="buttons-container">
+        <a href="{% url 'profile' %}" class="button back-to-profile-btn">Back to Profile</a>
+        <button class="button download-btn" id="downloadPdfBtn">Download PDF</button>
+        <button class="button download-btn" id="downloadExcelBtn">Download Excel</button> <!-- New Excel button -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const categories = JSON.parse('{{ categories|safe }}');
+            const amounts = JSON.parse('{{ amounts|safe }}');
+            const totalExpense = '{{ total_expense|floatformat:2 }}';
+            const averageExpense = '{{ average_daily_expense|floatformat:2 }}';
+
+            // Create the bar chart
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            const expenseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Expense Amount (₹)',
+                        data: amounts,
+                        backgroundColor: [
+                            'rgba(0, 123, 255, 0.5)',
+                            'rgba(40, 167, 69, 0.5)',
+                            'rgba(255, 193, 7, 0.5)',
+                            'rgba(220, 53, 69, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 123, 255, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Categories'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Amount (₹)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Function to download the PDF
+            document.getElementById('downloadPdfBtn').addEventListener('click', async function () {
+                const { jsPDF } = window.jspdf;
+
+                // Initialize jsPDF and use the default font (supports rupee symbol)
+                const doc = new jsPDF();
+
+                // Add the report text
+                doc.setFontSize(16);
+                doc.text('Financial Report', 14, 20);
+                doc.setFontSize(12);
+                doc.text(`Total Expense: ${totalExpense}`, 14, 30);
+                doc.text(`Average Daily Expense: ${averageExpense}`, 14, 40);
+
+                // Capture the chart
+                const canvas = await html2canvas(document.getElementById('expenseChart'));
+                const imgData = canvas.toDataURL('image/png');
+                doc.addImage(imgData, 'PNG', 14, 50, 180, 100);
+
+                // Save the PDF
+                doc.save('Financial Report.pdf');
+            });
+
+            // Function to download the Excel file
+            document.getElementById('downloadExcelBtn').addEventListener('click', function () {
+                const wb = XLSX.utils.book_new();
+                const wsData = [
+                    ['Category', 'Amount (₹)'],
+                    ...categories.map((category, index) => [category, amounts[index]])
+                ];
+
+                const ws = XLSX.utils.aoa_to_sheet(wsData);
+                XLSX.utils.book_append_sheet(wb, ws, 'Expense Report');
+
+                // Add total and average expense to the sheet
+                const summaryData = [
+                    ['Total Expense', `₹${totalExpense}`],
+                    ['Average Daily Expense', `₹${averageExpense}`]
+                ];
+                const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+
+                // Download the Excel file
+                XLSX.writeFile(wb, 'Financial_Report.xlsx');
+            });
+        });
+    </script>
+</body>
+</html>

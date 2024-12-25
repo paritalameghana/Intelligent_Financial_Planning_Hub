@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        /* Full-Screen Background Image Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://thelogicalindian.com/wp-content/uploads/2024/10/500x300_236133-bajaj-finserv-website-thumbnails.webp') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            color: white;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px 25px;
+            background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar img {
+            height: 50px; /* Logo size */
+            transition: transform 0.3s ease;
+        }
+
+        .navbar img:hover {
+            transform: rotate(360deg);
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 25px; /* Spacing between links */
+            margin-left: auto; /* Push links slightly left of the far right */
+        }
+
+        .navbar a {
+            color: white;
+            font-weight: bold;
+            padding: 12px 28px; /* Sufficient padding for buttons */
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px; /* Font size for better readability */
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: #92989f;
+            transform: scale(1.05);
+        }
+
+        /* Scrolling Text Styling */
+        .marquee {
+            margin-top: 120px; /* Positioned below the navbar */
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            display: flex;
+            justify-content: center; /* Center-aligned scrolling text */
+        }
+
+        .marquee h1 {
+            font-size: 24px;
+            color: black;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: scroll-right 12s linear infinite;
+        }
+
+        /* Scrolling Animation */
+        @keyframes scroll-right {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 20px; /* Adjusted padding for smaller screens */
+            }
+
+            .navbar img {
+                height: 40px; /* Reduced logo size */
+            }
+
+            .navbar-links {
+                gap: 20px; /* Reduced gap for smaller screens */
+                margin-left: auto; /* Keep links positioned properly */
+            }
+
+            .navbar a {
+                padding: 10px 20px; /* Reduced button padding */
+                font-size: 16px; /* Adjusted font size for visibility */
+            }
+
+            .marquee h1 {
+                font-size: 20px; /* Reduced font size for scrolling text */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <div class="navbar">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGq3U_t1gv6ame74dI6TBn2fH8xeD6t8vskw&s" alt="Logo">
+        <div class="navbar-links">
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
+        </div>
+    </div>
+
+    <!-- Scrolling Text Section -->
+    <div class="marquee">
+        <h1>Welcome to Smart Financial Management</h1>
+    </div>
+</body>
+</html>
