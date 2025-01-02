@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Reports</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .report-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-container h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .report-item {
+            font-size: 18px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .report-item strong {
+            font-weight: bold;
+        }
+
+        .chart-container {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .download-container {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .download-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .download-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Include html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="report-container">
+        <h1>Financial Report</h1>
+        <div class="report-item">
+            <strong>Total Expense:</strong> ₹{{ total_expense|floatformat:2 }}
+        </div>
+        <div class="report-item">
+            <strong>Average Daily Expense:</strong> ₹{{ average_daily_expense|floatformat:2 }}
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="expenseChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="download-container">
+        <a href="{% url 'profile' %}" class="btn-secondary">Back to Profile</a>
+        <button class="download-btn" id="downloadPdfBtn">Download PDF</button>
+        <button class="download-btn" id="downloadExcelBtn">Download Excel</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Parse categories and amounts from Django template
+            const categories = JSON.parse('{{ categories|safe }}');
+            const amounts = JSON.parse('{{ amounts|safe }}');
+            const totalExpense = '{{ total_expense|floatformat:2 }}';
+            const averageExpense = '{{ average_daily_expense|floatformat:2 }}';
+
+            // Define light and attractive colors
+            const backgroundColors = [
+                'rgba(255, 99, 132, 0.6)',    // Light Pink
+                'rgba(54, 162, 235, 0.6)',   // Light Blue
+                'rgba(255, 206, 86, 0.6)',   // Light Yellow
+                'rgba(75, 192, 192, 0.6)',   // Light Teal
+                'rgba(153, 102, 255, 0.6)',  // Light Purple
+                'rgba(255, 159, 64, 0.6)'    // Light Orange
+            ];
+
+            const borderColors = backgroundColors.map(color => color.replace('0.6', '1'));
+
+            // Create the bar chart
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            const expenseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Expense Amount (₹)',
+                        data: amounts,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Categories' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Amount (₹)' } }
+                    }
+                }
+            });
+
+            // Download PDF
+            document.getElementById('downloadPdfBtn').addEventListener('click', async function () {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                doc.setFontSize(16);
+                doc.text('Financial Report', 14, 20);
+                doc.setFontSize(12);
+                doc.text(`Total Expense: Rs. ${totalExpense}`, 14, 30);
+                doc.text(`Average Daily Expense: Rs. ${averageExpense}`, 14, 40);
+
+                const canvas = await html2canvas(document.getElementById('expenseChart'));
+                const imgData = canvas.toDataURL('image/png');
+                doc.addImage(imgData, 'PNG', 14, 50, 180, 100);
+
+                doc.save('financial_report.pdf');
+            });
+
+            // Download Excel
+            document.getElementById('downloadExcelBtn').addEventListener('click', function () {
+                const rows = [['Category', 'Amount']];
+                categories.forEach((category, index) => {
+                    rows.push([category, amounts[index]]);
+                });
+                let csvContent = 'data:text/csv;charset=utf-8,';
+                rows.forEach(row => {
+                    csvContent += row.join(',') + '\n';
+                });
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', 'financial_report.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+    </script>
+</body>
+</html>

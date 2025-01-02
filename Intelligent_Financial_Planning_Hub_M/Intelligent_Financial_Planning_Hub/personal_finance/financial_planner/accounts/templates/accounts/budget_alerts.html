@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Alerts</title>
+    <style>
+        /* General body styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Center the content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        /* Header Styling */
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        /* General tile styles */
+        .tile {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 20px;
+            color: white;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s, opacity 0.3s;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #fff;
+            border-left: 10px solid #4CAF50;
+        }
+
+        /* Warning tile style (Orange) */
+        .warning {
+            background-color: #FF9800;
+            border-left-color: #FF5722;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(255, 165, 0, 0.6);
+        }
+
+        /* Alert tile style (Red) */
+        .alert {
+            background-color: #F44336;
+            border-left-color: #D32F2F;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.6);
+        }
+
+        /* Success tile style (Green) */
+        .success {
+            background-color: #4CAF50;
+            border-left-color: #388E3C;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 128, 0, 0.6);
+        }
+
+        .tile p {
+            font-size: 18px;
+        }
+
+        .tile h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Style for the buttons */
+        .button {
+            display: inline-block;
+            font-size: 1.2em;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+            margin: 20px 15px;
+            background-color: #6c757d;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .button:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* Container for the buttons */
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* Flexbox for the buttons side by side */
+        .button-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .tile {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .button {
+                font-size: 1.1em;
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .tile {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .button {
+                font-size: 1em;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Expense Alerts</h1>
+
+        <!-- Warning Tiles (Orange) -->
+        {% if food_status == 'warning' %}
+        <div class="tile warning">
+            <h2>Warning: Food Budget Near Limit</h2>
+            <p><strong>Food Expenses: ₹{{ total_food_expenses|floatformat:1 }} | Food Budget: ₹{{ total_food_budget|floatformat:1 }}</strong></p>
+        </div>
+        {% endif %}
+
+        {% if entertainment_status == 'warning' %}
+        <div class="tile warning">
+            <h2>Warning: Entertainment Budget Near Limit</h2>
+            <p><strong>Entertainment Expenses: ₹{{ total_entertainment_expenses|floatformat:1 }} | Entertainment Budget: ₹{{ total_entertainment_budget|floatformat:1 }}</strong></p>
+        </div>
+        {% endif %}
+
+        {% if utilities_status == 'warning' %}
+        <div class="tile warning">
+            <h2>Warning: Utilities Budget Near Limit</h2>
+            <p><strong>Utilities Expenses: ₹{{ total_utilities_expenses|floatformat:1 }} | Utilities Budget: ₹{{ total_utilities_budget|floatformat:1 }}</strong></p>
+        </div>
+        {% endif %}
+
+        {% if others_status == 'warning' %}
+        <div class="tile warning">
+            <h2>Warning: Other Expenses Near Limit</h2>
+            <p><strong>Other Expenses: ₹{{ total_others_expenses|floatformat:1 }} | Other Budget: ₹{{ total_others_budget|floatformat:1 }}</strong></p>
+        </div>
+        {% endif %}
+
+        <!-- Alert Tiles (Red) -->
+        {% if food_status == 'alert' %}
+        <div class="tile alert">
+            <h2>Alert: Food Budget Exceeded</h2>
+            <p><strong>Food Expenses: ₹{{ total_food_expenses|floatformat:1 }} | Food Budget: ₹{{ total_food_budget|floatformat:1 }}</strong></p>
+        </div>
+        {% endif %}
+
+        {% if entertainment_status == 'alert' %}
+        <div class="tile alert">
+            <h2>Alert: Entertainment Budget Exceeded</h2>
+            <p><strong>Entertainment Expenses: ₹{{ total_entertainment_expenses|floatformat:1 }} | Entertainment Budget: ₹{{ total_entertainment_budget|floatformat:1 }}</strong></p>
+        </div>
+        {% endif %}
+
+        {% if utilities_status == 'alert' %}
+        <div class="tile alert">
+            <h2>Alert: Utilities Budget Exceeded</h2>
+            <p><strong>Utilities Expenses: ₹{{ total_utilities_expenses|floatformat:1 }} | Utilities Budget: ₹{{ total_utilities_budget|floatformat:1 }}</strong></p>
+        </div>
+        {% endif %}
+
+        {% if others_status == 'alert' %}
+        <div class="tile alert">
+            <h2>Alert: Other Expenses Exceeded</h2>
+            <p><strong>Other Expenses: ₹{{ total_others_expenses|floatformat:1 }} | Other Budget: ₹{{ total_others_budget|floatformat:1 }}</strong></p>
+        </div>
+        {% endif %}
+
+        <!-- Success Tile (Green) when no alert or warning exists -->
+        {% if food_status != 'warning' and food_status != 'alert' and entertainment_status != 'warning' and entertainment_status != 'alert' and utilities_status != 'warning' and utilities_status != 'alert' and others_status != 'warning' and others_status != 'alert' %}
+        <div class="tile success">
+            <h2>All Budgets Within Limits</h2>
+            <p><strong>All your expenses are within the allocated budgets. Keep up the good work!</strong></p>
+        </div>
+        {% endif %}
+
+        <!-- Button Container (Side by side) -->
+        <div class="button-wrapper">
+            <a href="{% url 'profile' %}" class="button">Back to Profile</a>
+            <a href="{% url 'budget_notification' %}" class="button">Back to Budget Notifications</a>
+        </div>
+    </div>
+</body>
+</html>

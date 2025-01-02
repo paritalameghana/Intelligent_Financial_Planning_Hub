@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Budget</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        .form-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .form-container h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 48%;
+        }
+
+        .btn-primary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .notification {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .notification.success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .notification.error {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .total-budget {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Set Your Monthly Budget</h2>
+        <form id="budgetForm" method="POST" onsubmit="handleBudgetSubmit(event)">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="food_budget_input">Food Budget</label>
+                <input type="number" id="food_budget_input" name="food_budget" placeholder="Enter Food Budget" value="{{ budgets.food_budget }}" required>
+            </div>
+            <div class="form-group">
+                <label for="entertainment_budget_input">Entertainment Budget</label>
+                <input type="number" id="entertainment_budget_input" name="entertainment_budget" placeholder="Enter Entertainment Budget" value="{{ budgets.entertainment_budget }}" required>
+            </div>
+            <div class="form-group">
+                <label for="utilities_budget_input">Utilities Budget</label>
+                <input type="number" id="utilities_budget_input" name="utilities_budget" placeholder="Enter Utilities Budget" value="{{ budgets.utilities_budget }}" required>
+            </div>
+            <div class="form-group">
+                <label for="others_budget_input">Others Budget</label>
+                <input type="number" id="others_budget_input" name="others_budget" placeholder="Enter Other Budget" value="{{ budgets.others_budget }}" required>
+            </div>
+            <div class="button-container">
+                <button type="button" class="btn-secondary" onclick="window.location.href='/profile/'">Back to Profile</button>
+                <button type="submit" class="btn-primary">Save Budgets</button>
+            </div>
+        </form>
+        <div id="notification" class="notification"></div>
+        <div id="total-budget" class="total-budget"></div>
+    </div>
+
+    <script>
+        function handleBudgetSubmit(event) {
+            event.preventDefault();
+
+            // Get Budget Values
+            const foodBudget = parseFloat(document.getElementById('food_budget_input').value);
+            const entertainmentBudget = parseFloat(document.getElementById('entertainment_budget_input').value);
+            const utilitiesBudget = parseFloat(document.getElementById('utilities_budget_input').value);
+            const othersBudget = parseFloat(document.getElementById('others_budget_input').value);
+
+            // Calculate Total Budget
+            const totalBudget = foodBudget + entertainmentBudget + utilitiesBudget + othersBudget;
+
+            const data = {
+                food_budget: foodBudget,
+                entertainment_budget: entertainmentBudget,
+                utilities_budget: utilitiesBudget,
+                others_budget: othersBudget,
+            };
+
+            fetch('/set-budget/', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                const notification = document.getElementById('notification');
+                const totalBudgetDiv = document.getElementById('total-budget');
+
+                if (data.success) {
+                    notification.className = 'notification success';
+                    notification.innerText = `${data.message}`;
+                    totalBudgetDiv.innerText = `Total Budget: ₹${totalBudget.toFixed(2)}`;
+                } else {
+                    notification.className = 'notification error';
+                    notification.innerText = data.message || 'Failed to update budgets.';
+                }
+                notification.style.display = 'block';
+                setTimeout(() => notification.style.display = 'none', 3000);
+            })
+            .catch(() => {
+                const notification = document.getElementById('notification');
+                notification.className = 'notification error';
+                notification.innerText = 'Failed to update budgets. Please try again.';
+                notification.style.display = 'block';
+                setTimeout(() => notification.style.display = 'none', 3000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Expense</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+
+        .form-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-container label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-container input,
+        .form-container select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-container input:focus,
+        .form-container select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .form-container button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .form-container button:hover {
+            background-color: #495057;
+        }
+
+        .form-container a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #6c757d;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #6c757d;
+            transition: color 0.3s, background-color 0.3s;
+        }
+
+        .form-container a:hover {
+            text-decoration: none;
+            color: white;
+            background-color: #6c757d;
+        }
+
+        /* Media Query for Smaller Screens */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 20px;
+                width: 90%;
+            }
+            .form-container h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Edit Expense</h1>
+
+        <!-- Success Message -->
+        {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <div style="color: green; font-weight: bold; text-align: center; margin-bottom: 20px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="{{ expense.date }}" required>
+
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+                <option value="" disabled {% if not expense.category %}selected{% endif %}>Select a category</option>
+                <option value="Food" {% if expense.category == "Food" %}selected{% endif %}>Food</option>
+                <option value="Utilities" {% if expense.category == "Utilities" %}selected{% endif %}>Utilities</option>
+                <option value="Entertainment" {% if expense.category == "Entertainment" %}selected{% endif %}>Entertainment</option>
+                <option value="Others" {% if expense.category == "Others" %}selected{% endif %}>Others</option>
+            </select>
+
+            <label for="description">Description</label>
+            <input type="text" id="description" name="description" value="{{ expense.description }}" required placeholder="Enter a brief description">
+
+            <label for="amount">Amount (INR)</label>
+            <input type="number" id="amount" name="amount" step="0.01" value="{{ expense.amount }}" required placeholder="Amount in INR">
+
+            <button type="submit">Update Expense</button>
+        </form>
+        <a href="{% url 'view_expenses' %}">Back to Expenses</a>
+    </div>
+</body>
+</html>
