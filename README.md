@@ -15,27 +15,26 @@ The *Intelligent Financial Planning Hub* is a Django-based web application desig
 
 ## 🗂 Project Structure  
 
-plaintext
 Intelligent-Financial-Planning-Hub/
 ├── personal_financial_tracker/
 │   ├── accounts/
-│   │   ├── migrations/
-│   │   ├── templates/
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── forms.py
-│   │   ├── models.py
-│   │   ├── tests.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── __init__.py
-│   ├── asgi.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── wsgi.py
-│   ├── debug.log
-│   └── manage.py
+│   │   ├── migrations/          # Database migration files
+│   │   ├── templates/           # HTML templates for the accounts app
+│   │   ├── __init__.py          # Python package initializer
+│   │   ├── admin.py             # Admin configuration for the accounts app
+│   │   ├── apps.py              # App configuration for accounts
+│   │   ├── forms.py             # Forms for user input handling
+│   │   ├── models.py            # Database models for the accounts app
+│   │   ├── tests.py             # Unit tests for the accounts app
+│   │   ├── urls.py              # URL routes for the accounts app
+│   │   └── views.py             # Views for handling HTTP requests
+│   ├── __init__.py              # Python package initializer for the project
+│   ├── asgi.py                  # ASGI configuration for deployment
+│   ├── settings.py              # Django project settings
+│   ├── urls.py                  # Root URL configuration for the project
+│   ├── wsgi.py                  # WSGI configuration for deployment
+│   ├── debug.log                # Log file for debugging
+│   └── manage.py                # Django's command-line utility
 
 
 ---
